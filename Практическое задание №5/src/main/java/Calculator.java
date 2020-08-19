@@ -33,7 +33,7 @@ public class Calculator {
             System.out.printf("%.3f", result);
         } else if (operation.equals("/")) {
             if (two.getChislo() == 0) {
-                System.out.println("Error, you can not divided by zero");
+                throw new ArithmeticException("Error, you can not divided by zero");
             } else {
                 Division division = new Division();
                 result = division.operation(one, two);
