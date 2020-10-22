@@ -1,5 +1,8 @@
 package ru.appline.controller;
 
+
+import net.minidev.json.JSONObject;
+import org.json.JSONException;
 import org.springframework.web.bind.annotation.*;
 import ru.appline.logic.Kompas;
 import ru.appline.logic.Pet;
@@ -38,9 +41,9 @@ public class Controller {
     }
 
     @PutMapping(value = "/putPet", consumes = "application/json", produces = "application/json")
-    public Map<Integer, Pet> putPet(@RequestBody Map<String, Integer> id, Pet pet){
-        petModel.getAll().remove(id.get("id"));
-        petModel.add(pet, id.get("id"));
+    public Map<Integer, Pet> putPet(@RequestBody Map<String, String> pet){
+        petModel.getAll().remove(pet.get("id"));
+        petModel.add(new Pet(pet.get("name"), pet.get("type"), Integer.parseInt(pet.get("age"))), Integer.parseInt(pet.get("id")));
         return petModel.getAll();
     }
 
@@ -53,19 +56,21 @@ public class Controller {
     }
 
     @GetMapping(value = "/getSide", consumes = "application/json", produces = "application/json")
-    public String getSide(@RequestBody Map<String, Integer> degree) {
+    public @ResponseBody
+    JSONObject getSide(@RequestBody Map<String, Integer> degree) throws JSONException {
         for (Map.Entry<String, String> entry : kompas.getAll().entrySet()) {
             int[] array = kompas.getRange(entry.getKey());
             if (array[0] < array[1]) {
                 if (degree.get("Degree") >= array[0] && degree.get("Degree") <= array[1]) {
-                    return ("Side: " + entry.getKey());
+                    return (new JSONObject().appendField("Side", entry.getKey()));
                 }
             } else {
-                if (degree.get("Degree") <= array[0] && degree.get("Degree") >= array[1]) {
-                    return ("Side: " + entry.getKey());
+                array[1] += 359;
+                if (degree.get("Degree") >= array[0] && degree.get("Degree") <= array[1]) {
+                    return (new JSONObject().appendField("Side", entry.getKey()));
                 }
             }
         }
-        return "something error";
+        return (new JSONObject().appendField("error", "something error"));
     }
 }
